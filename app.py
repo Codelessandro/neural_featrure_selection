@@ -1,5 +1,6 @@
 from DummyData import *
 from DataSetWine import *
+from GoogleTransparency import *
 from config import *
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation
@@ -11,9 +12,13 @@ machine_learnings_tasks = [
 ]
 
 
+#def get_data():
+    #wine = DataSetWine()
+    #return wine.data
+
 def get_data():
-    wine = DataSetWine()
-    return wine.data
+    transparency = GoogleTransparency()
+    return transparency.data
 
 
 #data = gen_dummy_data_sets()
@@ -35,7 +40,3 @@ model.compile(optimizer='rmsprop',
               loss='mse')
 
 model.fit(x,y, epochs=10, batch_size=2, validation_split=0.2)
-
-
-
-
