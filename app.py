@@ -1,4 +1,5 @@
 from DummyData import *
+from DataSetWine import *
 from config import *
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation
@@ -10,25 +11,30 @@ machine_learnings_tasks = [
 ]
 
 
-#build data
-data = gen_dummy_data_sets()
-x = data[:,0:20]
-y = data[:,20]
+def get_data():
+    wine = DataSetWine()
+    return wine.data
 
-import pdb; pdb.set_trace()
+
+#data = gen_dummy_data_sets()
+
+data = get_data()
+
+x = data[:,0:-1]
+y = data[:,-1]
 
 
 #training neural network
+import pdb; pdb.set_trace()
 model = Sequential()
-model.add(Dense(32, input_dim=20))
+model.add(Dense(32, input_dim=11193))
 model.add(Dense(1))
 model.add(Activation('relu'))
 
 model.compile(optimizer='rmsprop',
-              loss='mse',
-              metrics=['accuracy'])
+              loss='mse')
 
-model.fit(x,y, epochs=10, batch_size=32, validation_split=0.2)
+model.fit(x,y, epochs=10, batch_size=2, validation_split=0.2)
 
 
 
