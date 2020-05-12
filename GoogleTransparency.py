@@ -17,16 +17,16 @@ class GoogleTransparency():
 
 
     def load(self):
-        dataset = genfromtxt('data/google-safe-browsing-transparency-report-data.csv', delimiter=';')[1:]
+        dataset = genfromtxt('data/google-safe-browsing-transparency-report-data_nan.csv', delimiter=',')[1:]
         self.dataset=dataset
-        self.data = self.generate_data( [0,1,2,3,4,5], 10)
+        self.data = self.generate_data( [0,1,2,3,4,5], 12)
 
     def generate_data(self, base_dependent_columns, independent_column):
         base_x = self.dataset[:,base_dependent_columns]
         base_y = self.dataset[:,independent_column]
         base_r2_score = self.regression_score(base_x,base_y)
 
-        add_dependent_columns = [6,7,8,9]
+        add_dependent_columns = [6,7,8,9,10,11]
         add_columns = []
         for add_column in add_dependent_columns:
             extended_x = self.dataset[:,base_dependent_columns+[add_column]]
