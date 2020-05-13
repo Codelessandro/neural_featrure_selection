@@ -30,7 +30,7 @@ class BaseData():
     def permutation(self, dataset, target, random):
         rng = default_rng()
         for _ in range(random):
-            random_col = [i for i in rng.choice(dataset.shape[1]-1, size=5, replace=False)]
+            random_col = [i for i in rng.choice(dataset.shape[1], size=5, replace=False) if i not in [target]]
             self.data = self.generate_data(random_col, self.target, self.random)
 
     def generate_data(self, base_dependent_columns, independent_column, random):
@@ -44,7 +44,7 @@ class BaseData():
         #for _ in range(random):
             #dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=size, replace=False)]
         #dependent_columns = [6, 7, 8, 9, 10]
-        dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=self.dataset.shape[1]-5, replace=False) if i not in base_dependent_columns]
+        dependent_columns = [i for i in rng.choice(self.dataset.shape[1], size=self.dataset.shape[1]-5, replace=False) if i not in base_dependent_columns+[independent_column]]
 
         for add_column in dependent_columns:
             extended_x = self.dataset[:, base_dependent_columns+[add_column]]
