@@ -39,12 +39,13 @@ class BaseData():
         base_r2_score = self.regression_score(base_x,base_y)
 
         add_columns = []
-        #dependent_columns = np.setdiff1d(self.dataset, self.dataset[:, base_dependent_columns])
         rng = default_rng()
         size = self.dataset.shape[1]-5
-        for _ in range(random):
-            dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=size, replace=False)]
+        #for _ in range(random):
+            #dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=size, replace=False)]
         #dependent_columns = [6, 7, 8, 9, 10]
+        dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=self.dataset.shape[1]-5, replace=False) if i not in base_dependent_columns]
+
         for add_column in dependent_columns:
             extended_x = self.dataset[:, base_dependent_columns+[add_column]]
             score = self.regression_score(extended_x, base_y)
@@ -66,5 +67,5 @@ class BaseData():
 #WineData = BaseData('data/winequality-red.csv', ';', 11, 1)
 #WineData.load()
 
-#GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 1)
+#GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 5)
 #GoogleData.load()
