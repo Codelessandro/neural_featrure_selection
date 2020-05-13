@@ -3,7 +3,6 @@ import pandas as pd
 from numpy import genfromtxt
 from sklearn import datasets, linear_model
 import numpy as np
-from utils import *
 from config import *
 
 class DataSetWine():
