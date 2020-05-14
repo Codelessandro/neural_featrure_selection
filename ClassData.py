@@ -31,7 +31,7 @@ class BaseData():
     def permutation(self, dataset, target, random):
         rng = default_rng()
         for _ in range(random):
-            random_col = [i for i in rng.choice(dataset.shape[1], size=self.base_size, replace=False) if i not in [target]]
+            random_col =  np.random.choice(np.delete(np.arange(dataset.shape[1]),target),size=self.base_size)
             self.data = self.generate_data(random_col, self.target, self.random)
 
     def generate_data(self, base_dependent_columns, independent_column, random):

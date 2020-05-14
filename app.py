@@ -1,5 +1,6 @@
 from DummyData import *
 from DataSetWine import *
+from ClassData import *
 from config import *
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation
@@ -16,9 +17,14 @@ def get_data():
     return wine.data
 
 
-#data = gen_dummy_data_sets()
 
 data = get_data()
+
+
+#def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
+WineData = BaseData('data/winequality-red.csv', ';', 11, 1, 5)
+WineData.load()
+import pdb; pdb.set_trace()
 
 x = data[:,0:-1]
 y = data[:,-1]
