@@ -1,5 +1,6 @@
 from DummyData import *
 from DataSetWine import *
+from ClassData import *
 from config import *
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation
@@ -19,7 +20,18 @@ x = wine.data[:, 0:-1]
 y = wine.data[:, -1]
 
 
-# training neural network
+
+
+#def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
+WineData = BaseData('data/winequality-red.csv', ';', 11, 1, config["nr_base_columns"])
+WineData.load()
+data = WineData.data
+
+
+x = data[:,0:-1]
+y = data[:,-1]
+
+#training neural network
 model = Sequential()
 
 model.add(Dense(10, kernel_initializer='random_normal', bias_initializer='ones', input_dim=config["max_limit_dataset_rows"] * (config["nr_base_columns"] + 1)))
@@ -37,5 +49,5 @@ print(model.predict(x))
 print(y)
 print("--")
 
-evaluation(wine.base_x, wine.dataset[:, 9], model)
-evaluation(wine.base_x, wine.dataset[:, 11], model)
+evaluation(WineData.base_x, WineData.dataset[:, 9], model)
+evaluation(WineData.base_x, WineData.dataset[:, 11], model)
