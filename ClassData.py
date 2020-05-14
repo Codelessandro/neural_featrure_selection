@@ -8,11 +8,12 @@ from utils import *
 from numpy.random import default_rng
 
 class BaseData():
-    def __init__(self, dataset, delimiter, target, random, datetime=0):
+    def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
         self.dataset = dataset
         self.delimiter = delimiter
         self.target = target
         self.random = random
+        self.base_size = base_size
         self.datetime = datetime
 
     def regression_score(self, x,y):
@@ -30,7 +31,7 @@ class BaseData():
     def permutation(self, dataset, target, random):
         rng = default_rng()
         for _ in range(random):
-            random_col = [i for i in rng.choice(dataset.shape[1], size=5, replace=False) if i not in [target]]
+            random_col = [i for i in rng.choice(dataset.shape[1], size=self.base_size, replace=False) if i not in [target]]
             self.data = self.generate_data(random_col, self.target, self.random)
 
     def generate_data(self, base_dependent_columns, independent_column, random):
@@ -40,11 +41,10 @@ class BaseData():
 
         add_columns = []
         rng = default_rng()
-        size = self.dataset.shape[1]-5
         #for _ in range(random):
             #dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=size, replace=False)]
         #dependent_columns = [6, 7, 8, 9, 10]
-        dependent_columns = [i for i in rng.choice(self.dataset.shape[1], size=self.dataset.shape[1]-5, replace=False) if i not in base_dependent_columns+[independent_column]]
+        dependent_columns = [i for i in rng.choice(self.dataset.shape[1], size=self.dataset.shape[1]-self.base_size, replace=False) if i not in base_dependent_columns+[independent_column]]
 
         for add_column in dependent_columns:
             extended_x = self.dataset[:, base_dependent_columns+[add_column]]
