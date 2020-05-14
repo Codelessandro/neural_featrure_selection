@@ -4,6 +4,8 @@ from numpy import genfromtxt
 from sklearn import datasets, linear_model
 import numpy as np
 from config import *
+from utils import *
+
 
 class DataSetWine():
     def __init__(self):
@@ -28,6 +30,7 @@ class DataSetWine():
         base_r2_score = self.regression_score(base_x,base_y)
 
         add_dependent_columns = [5,6,7,8]
+
         add_columns = []
         for add_column in add_dependent_columns:
             extended_x = self.dataset[:,base_dependent_columns+[add_column]]

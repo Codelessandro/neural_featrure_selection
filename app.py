@@ -18,6 +18,7 @@ data = wine.data
 x = wine.data[:, 0:-1]
 y = wine.data[:, -1]
 
+
 # training neural network
 model = Sequential()
 
@@ -27,6 +28,9 @@ model.add(Activation('sigmoid'))
 
 model.compile(optimizer='rmsprop', learning_rate=0.000001, loss='binary_crossentropy')
 model.fit(x, y, epochs=1, batch_size=2, validation_split=0.2)
+
+
+
 print("--")
 
 print(model.predict(x))
