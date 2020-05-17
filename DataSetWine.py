@@ -3,6 +3,7 @@ import pandas as pd
 from numpy import genfromtxt
 from sklearn import datasets, linear_model
 import numpy as np
+from config import *
 from utils import *
 
 
@@ -18,15 +19,18 @@ class DataSetWine():
 
     def load(self):
         dataset = genfromtxt('data/winequality-red.csv', delimiter=';')[1:]
+        dataset=dataset[0:config["max_limit_dataset_rows"]]
         self.dataset=dataset
-        self.data = self.generate_data( [0,1,2,3,4,5], 11)
+        self.data = self.generate_data( [0,1,2,3,4,], 11)
 
     def generate_data(self, base_dependent_columns, independent_column):
         base_x = self.dataset[:,base_dependent_columns]
+        self.base_x = base_x
         base_y = self.dataset[:,independent_column]
         base_r2_score = self.regression_score(base_x,base_y)
 
-        add_dependent_columns = [6,7,8,9,10]
+        add_dependent_columns = [5,6,7,8]
+
         add_columns = []
         for add_column in add_dependent_columns:
             extended_x = self.dataset[:,base_dependent_columns+[add_column]]
