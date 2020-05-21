@@ -10,7 +10,7 @@ from numpy.random import default_rng
 from config import *
 
 class BaseData():
-    def __init__(self, dataset, delimiter, target, random, base_size=5, rifs=0, datetime=0):
+    def __init__(self, dataset, delimiter, target, random, base_size=5, rifs=False, datetime=0):
         self.dataset = dataset
         self.delimiter = delimiter
         self.target = target
@@ -46,7 +46,7 @@ class BaseData():
         base_y = self.dataset[:, independent_column]
         self.base_y = base_y
 
-        if self.rifs != 0:
+        if self.rifs is True:
             random_column = rng.choice(int(np.amax(self.dataset)), size=self.dataset.shape[0], replace=True)
             rifs_base_x = np.concatenate((base_x, random_column[:, None]), axis=1)
             base_r2_score = self.regression_score(rifs_base_x, base_y)
@@ -80,5 +80,5 @@ class BaseData():
 #WineData = BaseData('data/winequality-red.csv', ';', 11, 1)
 #WineData.load()
 
-#GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 1, rifs=1)
+#GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 1, rifs=True)
 #GoogleData.load()
