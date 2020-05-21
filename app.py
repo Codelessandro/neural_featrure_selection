@@ -20,7 +20,7 @@ machine_learnings_tasks = [
 #y = wine.data[:, -1]
 
 #def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
-WineData = BaseData('data/winequality-red.csv', ';', 11, 1, config["nr_base_columns"], rifs=1)
+WineData = BaseData('data/winequality-red.csv', ';', 11, 1, config["nr_base_columns"], rifs=True)
 WineData.load()
 data = WineData.data
 
