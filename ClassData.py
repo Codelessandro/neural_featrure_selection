@@ -7,10 +7,15 @@ import numpy as np
 from utils import *
 from numpy.random import default_rng
 
+np.random.seed(0)
+
 from config import *
 
 class BaseData():
     def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
+
+        self.augmented_nr_rows = config["dataset_rows"]
+
         self.dataset = dataset
         self.delimiter = delimiter
         self.target = target
@@ -18,21 +23,30 @@ class BaseData():
         self.base_size = base_size
         self.datetime = datetime
 
+
     def regression_score(self, x,y):
         regr = linear_model.LinearRegression()
         regr.fit(x,y)
         return regr.score(x,y)
 
+    def fix_row_size(self):
+        if self.dataset.shape[0]>config["dataset_rows"]:
+            self.dataset = self.dataset[0:config["dataset_rows"]]
+        else:
+            nr_repeats = round(config["dataset_rows"] / self.dataset.shape[0]+0.5)
+            self.dataset = np.repeat(self.dataset, nr_repeats, axis=0)
+            self.dataset = self.dataset[0:config["dataset_rows"]]
+
     def load(self):
-        dataset = genfromtxt(self.dataset, delimiter=self.delimiter)[1:]
-        dataset = dataset[0:config["max_limit_dataset_rows"]]
-        self.dataset = np.nan_to_num(dataset)
+        self.dataset = genfromtxt(self.dataset, delimiter=self.delimiter)[1:]
+        self.fix_row_size()
+
+        self.dataset = np.nan_to_num(self.dataset)
         if self.datetime > 0:
-            dataset[:, self.datetime] = np.datetime64(dataset[:, self.datetime]).astype(object).day
+            self.dataset[:, self.datetime] = np.datetime64(dataset[:, self.datetime]).astype(object).day
         self.perm = self.permutation(self.dataset, self.target, self.random)
 
     def permutation(self, dataset, target, random):
-        rng = default_rng()
         for _ in range(random):
             random_col =  np.random.choice(np.delete(np.arange(dataset.shape[1]),target),size=self.base_size)
             self.data = self.generate_data(random_col, self.target, self.random)
@@ -69,8 +83,3 @@ class BaseData():
 
         return to_row([[base_x, add_columns]])
 
-#WineData = BaseData('data/winequality-red.csv', ';', 11, 1)
-#WineData.load()
-
-#GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 5)
-#GoogleData.load()
