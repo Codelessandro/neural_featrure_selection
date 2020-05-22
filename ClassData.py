@@ -12,11 +12,11 @@ np.random.seed(0)
 from config import *
 
 class BaseData():
-    def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
+    def __init__(self, dataset_path, delimiter, target, random, base_size=5, datetime=0):
 
         self.augmented_nr_rows = config["dataset_rows"]
 
-        self.dataset = dataset
+        self.dataset_path = dataset_path
         self.delimiter = delimiter
         self.target = target
         self.random = random
@@ -37,21 +37,31 @@ class BaseData():
             self.dataset = np.repeat(self.dataset, nr_repeats, axis=0)
             self.dataset = self.dataset[0:config["dataset_rows"]]
 
+
+
     def load(self):
-        self.dataset = genfromtxt(self.dataset, delimiter=self.delimiter)[1:]
-        self.fix_row_size()
+        self.dataset = genfromtxt(self.dataset_path, delimiter=self.delimiter)[1:]
 
         self.dataset = np.nan_to_num(self.dataset)
         if self.datetime > 0:
             self.dataset[:, self.datetime] = np.datetime64(dataset[:, self.datetime]).astype(object).day
-        self.perm = self.permutation(self.dataset, self.target, self.random)
+        #self.perm = self.permutation(self.dataset, self.target, self.random)
+
+        random_col = np.random.choice(np.delete(np.arange(self.dataset.shape[1]), self.target), size=self.base_size, replace=False)
+        self.base_dataset = self.dataset
+        self.dataset = self.generate_data(random_col, self.target)
+        self.x=self.dataset[0]
+        self.y=self.dataset[1]
+
+
+
 
     def permutation(self, dataset, target, random):
         for _ in range(random):
-            random_col =  np.random.choice(np.delete(np.arange(dataset.shape[1]),target),size=self.base_size)
-            self.data = self.generate_data(random_col, self.target, self.random)
+            random_col =  np.random.choice(np.delete(np.arange(dataset.shape[1]),target),size=self.base_size,replace=False)
+            self.data = self.generate_data(random_col, self.target)
 
-    def generate_data(self, base_dependent_columns, independent_column, random):
+    def generate_data(self, base_dependent_columns, independent_column):
         base_x = self.dataset[:, base_dependent_columns]
         self.base_x = base_x
         base_y = self.dataset[:, independent_column]
@@ -63,7 +73,8 @@ class BaseData():
         #for _ in range(random):
             #dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=size, replace=False)]
         #dependent_columns = [6, 7, 8, 9, 10]
-        dependent_columns = [i for i in rng.choice(self.dataset.shape[1], size=self.dataset.shape[1]-self.base_size, replace=False) if i not in base_dependent_columns+[independent_column]]
+        dependent_columns =np.delete(np.delete(np.arange(self.dataset.shape[1]), independent_column), base_dependent_columns)
+
 
         for add_column in dependent_columns:
             extended_x = self.dataset[:, base_dependent_columns.tolist()+[add_column]]
@@ -77,9 +88,7 @@ class BaseData():
             else:
                 _score = -(score-base_r2_score) #adding a_column does not help
 
-
-            print(_score)
             add_columns.append([self.dataset[:,add_column],_score])
 
-        return to_row([[base_x, add_columns]])
+        return batchify([[base_x, add_columns]])
 
