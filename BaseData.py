@@ -10,12 +10,13 @@ from numpy.random import default_rng
 from config import *
 
 class BaseData():
-    def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
+    def __init__(self, dataset, delimiter, target, random, base_size=5, rifs=False, datetime=0):
         self.dataset = dataset
         self.delimiter = delimiter
         self.target = target
         self.random = random
         self.base_size = base_size
+        self.rifs = rifs
         self.datetime = datetime
 
     def regression_score(self, x,y):
@@ -38,16 +39,23 @@ class BaseData():
             self.data = self.generate_data(random_col, self.target, self.random)
 
     def generate_data(self, base_dependent_columns, independent_column, random):
+        rng = default_rng()
+
         base_x = self.dataset[:, base_dependent_columns]
         self.base_x = base_x
         base_y = self.dataset[:, independent_column]
         self.base_y = base_y
-        base_r2_score = self.regression_score(base_x,base_y)
+
+        if self.rifs is True:
+            random_column = rng.choice(int(np.amax(self.dataset)), size=self.dataset.shape[0], replace=True)
+            rifs_base_x = np.concatenate((base_x, random_column[:, None]), axis=1)
+            base_r2_score = self.regression_score(rifs_base_x, base_y)
+        else:
+            base_r2_score = self.regression_score(base_x, base_y)
 
         add_columns = []
         rng = default_rng()
-        #for _ in range(random):
-            #dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=size, replace=False)]
+
         #dependent_columns = [6, 7, 8, 9, 10]
         dependent_columns = [i for i in rng.choice(self.dataset.shape[1], size=self.dataset.shape[1]-self.base_size, replace=False) if i not in base_dependent_columns+[independent_column]]
 
@@ -72,5 +80,5 @@ class BaseData():
 #WineData = BaseData('data/winequality-red.csv', ';', 11, 1)
 #WineData.load()
 
-#GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 5)
+#GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 1, rifs=True)
 #GoogleData.load()
