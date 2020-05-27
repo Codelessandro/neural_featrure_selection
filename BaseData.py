@@ -3,18 +3,15 @@ import pandas as pd
 from numpy import genfromtxt
 from sklearn import datasets, linear_model
 import numpy as np
-#import pandas as pd
 from utils import *
-from numpy.random import default_rng
-
 from config import *
 
 class BaseData():
-    def __init__(self, dataset, delimiter, target, permute, base_size=5, rifs=False):
+    def __init__(self, dataset, delimiter, target, combine, base_size=5, rifs=False):
         self.dataset = dataset
         self.delimiter = delimiter
         self.target = target
-        self.permute = permute
+        self.combine = combine
         self.base_size = base_size
         self.rifs = rifs
 
@@ -27,15 +24,15 @@ class BaseData():
         dataset = genfromtxt(self.dataset, delimiter=self.delimiter)[1:]
         dataset = dataset[0:config["max_limit_dataset_rows"]]
         self.dataset = np.nan_to_num(dataset)
-        self.permutation(self.dataset, self.target, self.permute)
+        self.combination(self.dataset, self.target, self.combine)
 
-    def permutation(self, dataset, target, permute):
-        self.data = []
-        for _ in range(permute):
+    def combination(self, dataset, target, combine):
+        self.data = np.empty(shape=[self.base_size, (self.dataset.shape[0]*self.base_size + self.dataset.shape[0] + 1)])
+        for _ in range(combine):
             random_col = [i for i in np.random.choice(np.delete(np.arange(dataset.shape[1]), target), size=self.base_size, replace=False)]
-            self.data.append(self.generate_data(random_col, self.target, self.permute))
+            self.data = np.concatenate((self.data, self.generate_data(random_col, self.target)), axis=0)
 
-    def generate_data(self, base_dependent_columns, independent_column, permute):
+    def generate_data(self, base_dependent_columns, independent_column):
         base_x = self.dataset[:, base_dependent_columns]
         self.base_x = base_x
         base_y = self.dataset[:, independent_column]
@@ -80,5 +77,9 @@ class BaseData():
 #GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 3, rifs=True)
 #GoogleData.load()
 #data = GoogleData.data
+#x = data[:][:][0:-1]
+#y = data[:][:][-1]
+#print(x)
+#print(y)
 #print(data)
 #print(len(data))
