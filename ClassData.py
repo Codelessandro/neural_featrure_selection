@@ -49,10 +49,8 @@ class BaseData():
 
         random_col = np.random.choice(np.delete(np.arange(self.dataset.shape[1]), self.target), size=self.base_size, replace=False)
         self.base_dataset = self.dataset
-        self.dataset = self.generate_data(random_col, self.target)
-        self.x=self.dataset[0]
-        self.y=self.dataset[1]
-
+        self.x, self.y_data, self.y_score = self.generate_data(random_col, self.target)
+        self.xy = np.concatenate( (self.x,np.expand_dims(self.y_data,axis=2)),axis=2 )
 
 
 
@@ -66,6 +64,7 @@ class BaseData():
         self.base_x = base_x
         base_y = self.dataset[:, independent_column]
         self.base_y = base_y
+        self.base_xy = np.concatenate((self.base_x, np.expand_dims(self.base_y, axis=1)), axis=1)
         base_r2_score = self.regression_score(base_x,base_y)
 
         add_columns = []
@@ -73,7 +72,8 @@ class BaseData():
         #for _ in range(random):
             #dependent_columns = [i for i in rng.choice(self.dataset.shape[1]-1, size=size, replace=False)]
         #dependent_columns = [6, 7, 8, 9, 10]
-        dependent_columns =np.delete(np.delete(np.arange(self.dataset.shape[1]), independent_column), base_dependent_columns)
+        #dependent_columns =np.delete(np.delete(np.arange(self.dataset.shape[1]), independent_column), base_dependent_columns)
+        dependent_columns =np.delete(np.arange(self.dataset.shape[1]), base_dependent_columns)
 
 
         for add_column in dependent_columns:
@@ -90,5 +90,5 @@ class BaseData():
 
             add_columns.append([self.dataset[:,add_column],_score])
 
-        return batchify([[base_x, add_columns]])
+        return batchify(base_x,  add_columns, base_y)
 

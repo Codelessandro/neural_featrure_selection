@@ -27,7 +27,7 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
     for i in np.arange(10):
         hp = get_random_hyperparams()
         model = Sequential()
-        model.add(Flatten(input_shape=(config["batch_size"], config["nr_base_columns"] + 1)))
+        model.add(Flatten(input_shape=(config["batch_size"], config["nr_base_columns"] + 1 + 1))) #+1=target / +1 = add_coluim
         model.add(Dense(10, kernel_initializer='random_normal', bias_initializer='ones'))
 
         for layer in np.arange(hp["layers"]):
@@ -35,7 +35,7 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
 
         model.add(Dense(1))
         model.add(Activation('sigmoid'))
-        model.compile(optimizer='rmsprop', learning_rate=hp["learning_rate"], loss='binary_crossentropy')
+        model.compile(optimizer='rmsprop', learning_rate=hp["learning_rate"], loss='mse')
         _=model.fit(x, y, epochs=hp["epochs"], batch_size=hp["batch_size"], validation_split=0.2)
 
         mean_val_loss=np.mean(_.history["val_loss"][-10:])

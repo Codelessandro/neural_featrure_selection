@@ -37,5 +37,8 @@ def evaluation(base_dataset, add_column, y, neural_feature_model):
 
     print("Neural Feature Selection:" + str(score))
 
+    return score, pearson(base_dataset, add_column, y)[0]
+
+
 
 
