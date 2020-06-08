@@ -1,48 +1,71 @@
 from DummyData import *
 from DataSetWine import *
-from BaseData import *
+from ClassData import *
 from config import *
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation
-from tensorflow import keras
-from evaluation import *
+
 import math
 import pdb
 
-machine_learnings_tasks = [
-    "regression", "classification"
-]
+from evaluation import *
+from model_feedforward import *
 
-#wine = DataSetWine()
-#data = wine.data
 
-#x = wine.data[:, 0:-1]
-#y = wine.data[:, -1]
+np.set_printoptions(suppress=True)
+
 
 #def __init__(self, dataset, delimiter, target, random, base_size=5, datetime=0):
-WineData = BaseData('data/winequality-red.csv', ';', 11, 1, config["nr_base_columns"], rifs=True)
+WineData = BaseData('data/winequality-red.csv', ';', 11, 1, config["nr_base_columns"])
 WineData.load()
-data = WineData.data
+GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 5)
+GoogleData.load()
 
-x = data[:,0:-1]
-y = data[:,-1]
 
-print(x, y)
+xy = np.concatenate( (GoogleData.xy,WineData.xy),axis=0)
+y_score = normalize(np.concatenate( (GoogleData.y_score,WineData.y_score),axis=0))
+#y_data = normalize(np.concatenate( (GoogleData.y_data,WineData.y_data),axis=0))
 
-#training neural network
-model = Sequential()
+'''
+from scipy.stats import pearsonr
+pearsons=[]
+nfs=[]
 
-model.add(Dense(10, kernel_initializer='random_normal', bias_initializer='ones', input_dim=config["max_limit_dataset_rows"] * (config["nr_base_columns"] + 1)))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
-model.compile(optimizer=keras.optimizers.RMSprop(learning_rate=1e-6), loss='binary_crossentropy')
-model.fit(x, y, epochs=1, batch_size=2, validation_split=0.2)
+for  i in np.arange(y_score.shape[0]):
+    pearson = pearsonr(x[i][:,5], y_data[i])[0]
+    _nfs = y_score[i]
+    pearsons.append(pearson)
+    nfs.append(_nfs)
+'''
 
-print("--")
 
-print(model.predict(x))
-print(y)
-print("--")
 
-evaluation(WineData.base_x, WineData.dataset[:, 9], model)
-evaluation(WineData.base_x, WineData.dataset[:, 11], model)
+
+
+model, i, modelhistory = best_feedforward_model(xy,y_score,True)
+
+
+evaluations=[]
+
+print("i:")
+print(i)
+
+print("++++")
+print("++++")
+evaluations.append(evaluation(WineData.base_xy, np.random.normal(0, 10,  WineData.base_dataset[:, 9].shape[0]), WineData.base_dataset[:,11], model))
+print("++++")
+print("++++")
+for c in [0,1,2,3,4,5,6,7,8,9,10]:
+    evaluations.append(evaluation(WineData.base_xy, WineData.base_dataset[:, c], WineData.base_dataset[:,11], model))
+print("++++")
+print("++++")
+evaluations.append(evaluation(WineData.base_xy, WineData.base_dataset[:, 11], WineData.base_dataset[:,11], model))
+print("++++")
+print("++++")
+
+evaluations = np.array(evaluations)
+print(evaluations)
+plt.scatter(evaluations[:,0],evaluations[:,1])
+plt.xlabel('NFS Score')
+plt.ylabel('Pearson')
+plt.xlim(-1,1)
+plt.ylim(-1,1)
+plt.show()
