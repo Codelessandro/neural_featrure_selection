@@ -24,7 +24,7 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
     best_i=None
     best_val_loss=np.Infinity
 
-    for i in np.arange(10):
+    for i in np.arange(config["nr_feedforward_iterations"]):
         hp = get_random_hyperparams()
         model = Sequential()
         model.add(Flatten(input_shape=(config["batch_size"], config["nr_base_columns"] + 1 + 1))) #+1=target / +1 = add_coluim

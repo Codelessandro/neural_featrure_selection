@@ -40,6 +40,9 @@ GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', 
 
 xy, y_score = merge_data_sets([WineData, GoogleData, GoogleData])
 
+
+
+
 '''
 from scipy.stats import pearsonr
 pearsons=[]
@@ -75,9 +78,13 @@ print("++++")
 
 evaluations = np.array(evaluations)
 print(evaluations)
-plt.scatter(evaluations[:, 0], evaluations[:, 1])
+
+plt.scatter(evaluations[:, 0], evaluations[:, 2])
 plt.xlabel('NFS Score')
 plt.ylabel('Pearson')
 plt.xlim(-1, 1)
 plt.ylim(-1, 1)
 plt.show()
+
+
+plot_performance(evaluations[:, 1],evaluations[:, 3])
