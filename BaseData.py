@@ -11,7 +11,7 @@ np.random.seed(0)
 from config import *
 
 class BaseData():
-    def __init__(self, dataset_path, delimiter, target, combine, base_size=5, rifs=False):
+    def __init__(self, dataset_path, delimiter, target, combine, base_size=5, rifs=False, budget=1):
 
         self.augmented_nr_rows = config["dataset_rows"]
         self.dataset_path = dataset_path
@@ -20,6 +20,7 @@ class BaseData():
         self.combine = combine
         self.base_size = base_size
         self.rifs = rifs
+        self.budget = budget
 
 
     def regression_score(self, x,y):
@@ -34,7 +35,10 @@ class BaseData():
         self.combination(self.dataset, self.target, self.combine)
 
     def combination(self, dataset, target, combine):
-        self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+1])
+        if self.budget == 1:
+            self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+1])
+        else:
+            self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns'] + 1 + self.budget])
         self.y_data = np.empty(shape=[1, config['batch_size']])
         self.y_score = np.empty(shape=[1])
         for _ in range(combine):
@@ -49,6 +53,8 @@ class BaseData():
         self.y_score = self.y_score[1:]
         #pdb.set_trace()
         self.xy = np.concatenate((self.x, np.expand_dims(self.y_data, axis=2)), axis=2)
+
+        #print(self.x.shape, self.y_data.shape, self.y_score.shape, self.xy.shape)
 
     def generate_data(self, base_dependent_columns, independent_column):
         base_x = self.dataset[:, base_dependent_columns]
@@ -68,6 +74,7 @@ class BaseData():
                 pdb.set_trace()
 
         add_columns = []
+
         size = self.dataset.shape[1] - len(base_dependent_columns) - len([independent_column])
 
         dependent_columns = [i for i in np.random.choice(np.delete(np.arange(self.dataset.shape[1]), np.append(independent_column, base_dependent_columns)), size=size, replace=False)]
@@ -79,11 +86,11 @@ class BaseData():
             if base_r2_score < 0 or score < 0:
                 raise Exception('Some score is <0. Think about how to calc score difference!')
 
-            if score>base_r2_score:
-                _score =  score-base_r2_score #adding a_column helps
+            if score > base_r2_score:
+                _score = score-base_r2_score #adding a_column helps
             else:
                 _score = -(score-base_r2_score) #adding a_column does not help
 
             add_columns.append([self.dataset[:, add_column], _score])
-
-        return batchify(base_x,  add_columns, base_y)
+        add_columns = sorted(add_columns, key=lambda x: x[1], reverse=True)
+        return batchify(base_x,  add_columns, base_y, self.budget)
