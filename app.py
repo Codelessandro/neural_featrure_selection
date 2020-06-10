@@ -1,6 +1,6 @@
 from DummyData import *
 from DataSetWine import *
-from ClassData import *
+from BaseData import *
 from config import *
 
 import math
@@ -35,13 +35,10 @@ def merge_data_sets(datasets):
     return xy, y_score
 
 
-WineData = BaseData('data/winequality-red.csv', ';', 11, 1, config["nr_base_columns"])
-GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 5)
+WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
+GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)
 
-xy, y_score = merge_data_sets([WineData, GoogleData, GoogleData])
-
-
-
+xy, y_score = merge_data_sets([WineData, GoogleData])
 
 '''
 from scipy.stats import pearsonr
