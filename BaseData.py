@@ -34,15 +34,28 @@ class BaseData():
         self.combination(self.dataset, self.target, self.combine)
 
     def combination(self, dataset, target, combine):
-        self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+1])
         self.y_data = np.empty(shape=[1, config['batch_size']])
-        self.y_score = np.empty(shape=[1])
+
+        if config["budget_join"]:
+            self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+ config['nr_add_columns_per_budget_group'] ])
+            self.y_score = np.empty(shape=[1,config['nr_add_columns_per_budget_group'],])
+        else:
+            self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+1])
+            self.y_score = np.empty(shape=[1])
+
+
         for _ in range(combine):
             random_col = np.random.choice(np.delete(np.arange(dataset.shape[1]),target),size=self.base_size,replace=False)
             x, y_data, y_score = self.generate_data(random_col, self.target)
+
             self.x = np.concatenate((self.x, x))
-            self.y_data = np.concatenate((self.y_data, y_data))
-            self.y_score = np.concatenate((self.y_score, y_score))
+
+            try:
+                self.y_data = np.concatenate((self.y_data, y_data))
+                self.y_score = np.concatenate((self.y_score, y_score))
+            except:
+                import pdb; pdb.set_trace()
+
 
         self.x = self.x[1:]
         self.y_data = self.y_data[1:]
@@ -71,7 +84,6 @@ class BaseData():
         size = self.dataset.shape[1] - len(base_dependent_columns) - len([independent_column])
 
         dependent_columns = [i for i in np.random.choice(np.delete(np.arange(self.dataset.shape[1]), np.append(independent_column, base_dependent_columns)), size=size, replace=False)]
-
         for add_column in dependent_columns:
             extended_x = self.dataset[:, base_dependent_columns.tolist()+[add_column]]
             score = self.regression_score(extended_x, base_y)
@@ -86,4 +98,7 @@ class BaseData():
 
             add_columns.append([self.dataset[:, add_column], _score])
 
-        return batchify(base_x,  add_columns, base_y)
+
+
+
+        return batchify(base_x,  add_columns, base_y, config["budget_join"])
