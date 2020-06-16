@@ -28,7 +28,7 @@ class BaseData():
         return regr.score(x,y)
 
     def load(self):
-        self.dataset = genfromtxt(self.dataset_path, delimiter=self.delimiter)[1:]
+        self.dataset = genfromtxt(self.dataset_path, delimiter=self.delimiter, encoding="utf8", invalid_raise = False)[1:]
         self.dataset = np.nan_to_num(self.dataset)
         self.base_dataset = self.dataset
         self.combination(self.dataset, self.target, self.combine)
