@@ -4,7 +4,7 @@ from numpy import genfromtxt
 from sklearn import datasets, linear_model
 import numpy as np
 from utils import *
-from numpy.random import default_rng
+from sklearn.utils import resample
 
 np.random.seed(0)
 
