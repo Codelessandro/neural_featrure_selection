@@ -8,5 +8,7 @@ config = {
     "nr_base_columns" : 5,
     "nr_add_columns_per_budget_group" : 5,
     "nr_feedforward_iterations": 1,
-    "budget_join" : False
+    "budget_join" : False,
+    "bootstrapping": True,
+    "nr_bootstraps": 10
 }
