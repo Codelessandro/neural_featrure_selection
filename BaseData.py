@@ -43,6 +43,14 @@ class BaseData():
             self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+1])
             self.y_score = np.empty(shape=[1])
 
+        if config["bootstrapping"]:
+            bootstrap_join = config["nr_bootstraps"]-self.base_size - 1
+            dataset_flattened = self.dataset.flatten()
+
+            for _ in range(bootstrap_join):
+                boot = resample(dataset_flattened, replace=True, n_samples=self.dataset.shape[0], random_state=1)
+                boot_ext = np.expand_dims(boot, axis=1)
+                self.dataset = np.append(self.dataset, boot_ext, axis=1)
 
         for _ in range(combine):
             random_col = np.random.choice(np.delete(np.arange(dataset.shape[1]),target),size=self.base_size,replace=False)
@@ -54,12 +62,14 @@ class BaseData():
                 self.y_data = np.concatenate((self.y_data, y_data))
                 self.y_score = np.concatenate((self.y_score, y_score))
             except:
-                import pdb; pdb.set_trace()
+                pdb.set_trace()
 
 
         self.x = self.x[1:]
         self.y_data = self.y_data[1:]
         self.y_score = self.y_score[1:]
+        #pdb.set_trace()
+  
         #pdb.set_trace()
         self.xy = np.concatenate((self.x, np.expand_dims(self.y_data, axis=2)), axis=2)
 
