@@ -10,5 +10,5 @@ config = {
     "nr_feedforward_iterations": 1,
     "budget_join" : False,
     "bootstrapping": True,
-    "nr_bootstraps": 10
+    "nr_bootstraps": 100 #nr_of_bootstraps
 }
