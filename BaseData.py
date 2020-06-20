@@ -69,8 +69,6 @@ class BaseData():
         self.y_data = self.y_data[1:]
         self.y_score = self.y_score[1:]
         #pdb.set_trace()
-  
-        #pdb.set_trace()
         self.xy = np.concatenate((self.x, np.expand_dims(self.y_data, axis=2)), axis=2)
 
     def generate_data(self, base_dependent_columns, independent_column):
@@ -94,6 +92,7 @@ class BaseData():
         size = self.dataset.shape[1] - len(base_dependent_columns) - len([independent_column])
 
         dependent_columns = [i for i in np.random.choice(np.delete(np.arange(self.dataset.shape[1]), np.append(independent_column, base_dependent_columns)), size=size, replace=False)]
+        #pdb.set_trace()
         for add_column in dependent_columns:
             extended_x = self.dataset[:, base_dependent_columns.tolist()+[add_column]]
             score = self.regression_score(extended_x, base_y)
@@ -107,8 +106,51 @@ class BaseData():
                 _score = -(score-base_r2_score) #adding a_column does not help
 
             add_columns.append([self.dataset[:, add_column], _score])
-
-
-
-
         return batchify(base_x,  add_columns, base_y, config["budget_join"])
+
+#google = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)
+#google.load()
+#print(google.xy.shape)
+
+#campus_placement = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True)
+#campus_placement.load()
+#print(campus_placement.xy)
+
+#added here decoding parameter to getfromtxt
+#football_results = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True)
+#football_results.load()
+#print(football_results.xy)
+
+#new method to replace blank cells has to be added
+#games_sales = BaseData('data/Video_Games_Sales_as_at_22_Dec_2016.csv', ',', 15, 10, config["nr_base_columns"], rifs=True)
+#games_sales.load()
+#print(games_sales.xy)
+
+#king_sales = BaseData('data/kc_house_data.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
+#king_sales.load()
+#print(king_sales.xy)
+
+#avocado_sales = BaseData('data/avocado.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
+#avocado_sales.load()
+#print(avocado_sales.xy)
+
+#too many text columns
+#brazil_rent = BaseData('data/houses_to_rent_brazil.csv', ',', 12, 10, config["nr_base_columns"], rifs=True)
+#brazil_rent.load()
+#print(brazil_rent.xy)
+
+#tesla_stocks = BaseData('data/TSLA.csv', ',', 6, 10, config["nr_base_columns"], rifs=True)
+#tesla_stocks.load()
+#print(tesla_stocks.xy)
+
+#weatherHistory = BaseData('data/weatherHistory.csv', ',', 8, 10, config["nr_base_columns"], rifs=True)
+#weatherHistory.load()
+#print(weatherHistory.xy)
+
+#voice = BaseData('data/voice.csv', ',', 19, 10, config["nr_base_columns"], rifs=True)
+#voice.load()
+#print(voice.xy)
+
+#countries_of_the_world = BaseData('data/countries_of_the_world.csv', ',', 14, 10, config["nr_base_columns"], rifs=True)
+#countries_of_the_world.load()
+#print(countries_of_the_world.xy)
