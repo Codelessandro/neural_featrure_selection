@@ -63,16 +63,24 @@ model, i, modelhistory = best_feedforward_model(xy, y_score, True)
 
 
 
+
+
 if config["budget_join"]:
+    add_eval_columns = [
+        WineData.base_dataset[:, 0],
+        WineData.base_dataset[:, 1],
+        WineData.base_dataset[:, 2],
+        WineData.base_dataset[:, 3],
+        WineData.base_dataset[:, 11],
+    ]
+
+    for i in np.arange(135):
+        add_eval_columns=add_eval_columns.append(WineData.base_dataset[:, 0])
+
+
     evaluations=evaluation(
         WineData.base_xy,
-        [
-            WineData.base_dataset[:, 0],
-            WineData.base_dataset[:, 1],
-            WineData.base_dataset[:, 2],
-            WineData.base_dataset[:, 3],
-            WineData.base_dataset[:, 11],
-        ],
+        add_eval_columns,
         WineData.base_dataset[:, 11],
         model
     )
