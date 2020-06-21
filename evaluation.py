@@ -14,28 +14,36 @@ def constant(base_dataset,add_column,y):
     return 0.5
 
 
-def evaluation(base_dataset, add_column, y, neural_feature_model):
+def evaluation(base_dataset, add_columns, y, neural_feature_model):
+
     evaluations=[]
     if config["machine_learning_task"]=="regression":
+
+        '''
         evaluations.append( {
             "constant" : constant(base_dataset,add_column, y)
         })
+        '''
+
+
         p_start = timer()
-        p = pearson(base_dataset, add_column, y)[0]
+        for c in add_columns:
+            p = pearson(base_dataset, c, y)[0]
+            evaluations.append( {
+                "pearson": p
+            })
         p_end = timer()
-        evaluations.append( {
-            "pearson": p
-        })
 
 
-    extended_x =  np.concatenate((base_dataset,add_column.reshape(-1,1)),axis=1)  #.reshape(1,config["max_limit_dataset_rows"]*(config["nr_base_columns"]+1))
+    extended_x =  np.concatenate((base_dataset,  np.vstack(add_columns).reshape(-1,len(add_columns))  ), axis=1) #.reshape(1,config["max_limit_dataset_rows"]*(config["nr_base_columns"]+1))
     x_batch = generate_batch(extended_x)
 
     nfs_start = timer()
     scores=neural_feature_model.predict(x_batch)
-    score = np.mean(scores)
+    scores = np.mean(scores,axis=0)
     nfs_end = timer()
 
+    '''
     print("For this dataset with this column we have the following scores:")
 
     for e in evaluations:
@@ -43,8 +51,10 @@ def evaluation(base_dataset, add_column, y, neural_feature_model):
         print("method:" + str(method) + str(e[method]))
 
     print("Neural Feature Selection:" + str(score))
+    '''
 
-    return score,  (nfs_end - nfs_start), pearson(base_dataset, add_column, y)[0], (p_end-p_start)
+    evaluations = list(map(lambda e: e['pearson'], evaluations))
+    return  scores,  (nfs_end - nfs_start), evaluations, (p_end-p_start)
 
 
 
