@@ -9,43 +9,15 @@ import pdb
 from evaluation import *
 from model_feedforward import *
 from functools import reduce
-
+from load_data import *
 
 
 np.set_printoptions(suppress=True)
 
 
-def merge_data_sets(datasets):
-    for d in datasets:
-        d.load()
 
+xy, y_score = load_data(config["task"])
 
-    y_score = []
-    xy      = []
-
-    for d in datasets:
-        y_score.append(d.y_score)
-        xy.append(d.xy)
-
-    y_score = np.concatenate(y_score)
-    xy = np.concatenate(xy)
-
-
-    return xy, y_score
-
-
-WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
-
-GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)
-CampusData = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True)
-FootballData = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True)
-KingSalesData = BaseData('data/kc_house_data.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
-AvocadoSalesData = BaseData('data/avocado.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
-TeslaStocksData = BaseData('data/TSLA.csv', ',', 6, 10, config["nr_base_columns"], rifs=True)
-WeatherHistoryData = BaseData('data/weatherHistory.csv', ',', 8, 10, config["nr_base_columns"], rifs=True)
-VoiceData = BaseData('data/voice.csv', ',', 19, 10, config["nr_base_columns"], rifs=True)
-
-xy, y_score = merge_data_sets([WineData, GoogleData, CampusData, FootballData, KingSalesData, AvocadoSalesData, TeslaStocksData, WeatherHistoryData, VoiceData])
 
 '''
 from scipy.stats import pearsonr
