@@ -29,13 +29,13 @@ def batchify(base_x,  add_columns, base_y, budget_join=False):
 
     if budget_join == True:
 
-        nr_budget_join_groups = int(len(add_columns) / config["nr_add_columns_per_budget_group"])
+        nr_budget_join_groups = int(len(add_columns) / config["nr_add_columns_budget"])
         x = []
         y_data = []
         y_score = []
 
         for group_index in np.arange(nr_budget_join_groups):
-            add_columns_group = add_columns[   group_index*config["nr_add_columns_per_budget_group"]  :(1+group_index)*config["nr_add_columns_per_budget_group"]]
+            add_columns_group = add_columns[   group_index*config["nr_add_columns_budget"]  :(1+group_index)*config["nr_add_columns_budget"]]
             _x_batch, _y_data, _y_score =_batchify(base_x, add_columns_group, base_y, True)
             x.append(_x_batch)
             y_data.append(_y_data)
@@ -61,8 +61,8 @@ def _batchify(base_x,  add_columns, base_y, budget_join):
          extended_dataset = np.hstack((add_columns_data,base_x))
          x_batch = generate_batch(extended_dataset)
          y_data_batch = generate_batch(base_y)
-         #y_score_batch = np.array( add_columns_scores  * (x_batch.shape[0]*x_batch.shape[1])  ).reshape(x_batch.shape[0],x_batch.shape[1],config["nr_add_columns_per_budget_group"])
-         y_score_batch = np.array( add_columns_scores  * (x_batch.shape[0])  ).reshape(x_batch.shape[0],config["nr_add_columns_per_budget_group"])
+         #y_score_batch = np.array( add_columns_scores  * (x_batch.shape[0]*x_batch.shape[1])  ).reshape(x_batch.shape[0],x_batch.shape[1],config["nr_add_columns_budget"])
+         y_score_batch = np.array( add_columns_scores  * (x_batch.shape[0])  ).reshape(x_batch.shape[0],config["nr_add_columns_budget"])
 
 
          return x_batch, y_data_batch, y_score_batch
