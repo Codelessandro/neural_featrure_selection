@@ -4,7 +4,9 @@ from numpy import genfromtxt
 from sklearn import datasets, linear_model
 import numpy as np
 from utils import *
+from numpy.random import default_rng
 from sklearn.utils import resample
+
 
 np.random.seed(0)
 
@@ -37,8 +39,8 @@ class BaseData():
         self.y_data = np.empty(shape=[1, config['batch_size']])
 
         if config["budget_join"]:
-            self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+ config['nr_add_columns_per_budget_group'] ])
-            self.y_score = np.empty(shape=[1,config['nr_add_columns_per_budget_group'],])
+            self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+ config['nr_add_columns_budget'] ])
+            self.y_score = np.empty(shape=[1,config['nr_add_columns_budget'],])
         else:
             self.x = np.empty(shape=[1, config['batch_size'], config['nr_base_columns']+1])
             self.y_score = np.empty(shape=[1])
@@ -51,6 +53,17 @@ class BaseData():
                 boot = resample(dataset_flattened, replace=True, n_samples=self.dataset.shape[0], random_state=1)
                 boot_ext = np.expand_dims(boot, axis=1)
                 self.dataset = np.append(self.dataset, boot_ext, axis=1)
+
+        boostrapped_columns_needed = config["nr_add_columns_budget"] - (self.dataset.shape[1] - self.base_size -1)
+
+        if boostrapped_columns_needed>0:
+            dataset_flattened = self.dataset.flatten()
+
+        for _ in range(boostrapped_columns_needed):
+            boot = resample(dataset_flattened, replace=True, n_samples=self.dataset.shape[0], random_state=1)
+            boot_ext = np.expand_dims(boot, axis=1)
+            self.dataset = np.append(self.dataset, boot_ext, axis=1)
+
 
         for _ in range(combine):
             random_col = np.random.choice(np.delete(np.arange(dataset.shape[1]),target),size=self.base_size,replace=False)

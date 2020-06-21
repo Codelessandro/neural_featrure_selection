@@ -29,7 +29,7 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
         model = Sequential()
 
         if config["budget_join"]:
-            input_shape = config["nr_base_columns"] + 1 + config["nr_add_columns_per_budget_group"]
+            input_shape = config["nr_base_columns"] + 1 + config["nr_add_columns_budget"]
         else:
             input_shape =  config["nr_base_columns"] + 1 + 1 #+1=target / +1 = add_coluim
 
@@ -41,7 +41,7 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
             model.add(Dense(hp["nodes_on_layer"]))
 
         if config["budget_join"]:
-            model.add(Dense(config["nr_add_columns_per_budget_group"]))
+            model.add(Dense(config["nr_add_columns_budget"]))
         else:
             model.add(Dense(1))
 
