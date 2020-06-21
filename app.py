@@ -35,6 +35,7 @@ def merge_data_sets(datasets):
 
 
 WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
+
 GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)
 CampusData = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True)
 FootballData = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True)
