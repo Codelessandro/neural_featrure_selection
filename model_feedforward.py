@@ -68,8 +68,8 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
                 plt.close()
 
             if  config["budget_join"]==True:
-                plt.scatter(np.arange(y.shape[0]*y.shape[1]), y.flatten())
-                plt.scatter(np.arange(y.shape[0]*y.shape[1]), model.predict(x).flatten())
+                plt.scatter(np.arange(y.shape[0]*y.shape[1]), y.flatten(), s=0.2)
+                plt.scatter(np.arange(y.shape[0]*y.shape[1]), model.predict(x).flatten(), s=0.4)
                 plt.savefig('./plots/' + str(i) + '.png')
                 plt.close()
 

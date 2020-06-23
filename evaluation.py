@@ -60,7 +60,8 @@ def evaluation_wrapper(task, model):
             model
         )
 
-    plot_performance([evaluations[1]], [evaluations[3]])
+    #plot_performance([evaluations[1]], [evaluations[3]])
+    return evaluations
 
 
 def evaluation(base_dataset, add_columns, y, neural_feature_model):
@@ -87,6 +88,7 @@ def evaluation(base_dataset, add_columns, y, neural_feature_model):
     extended_x =  np.concatenate((base_dataset,  np.vstack(add_columns).reshape(-1,len(add_columns))  ), axis=1) #.reshape(1,config["max_limit_dataset_rows"]*(config["nr_base_columns"]+1))
     x_batch = generate_batch(extended_x)
 
+
     nfs_start = timer()
     scores=neural_feature_model.predict(x_batch)
     scores = np.mean(scores,axis=0)
@@ -100,19 +102,20 @@ def evaluation(base_dataset, add_columns, y, neural_feature_model):
 
 
 
-def plot_performance(nfs, method):
+def plot_performance(nfs, method, columns):
 
     N=np.arange(len(method))
 
-    width = 1
+    width = 0.5
     p1 = plt.bar(N*2, nfs, width, align='edge')
     print(nfs)
     print(method)
-    p2 = plt.bar(N*2+1, method, width, align='edge')
+    p2 = plt.bar(N*2+0.5, method, width, align='edge')
 
     plt.xlabel('additional Column on a Dataset')
     plt.ylabel('Time in seconds')
-    plt.yscale('log')
+    #plt.yscale('log')
+    plt.xticks(np.arange(len(columns))*2,list(map(lambda c: str(c) + " columns", columns)))
 
     plt.legend((p1[0], p2[0]), ('NFS', 'Pearson'))
     plt.show()
