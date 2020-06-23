@@ -18,6 +18,9 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
             "layers" : np.random.choice([2,3,4]),
             "nodes_on_layer": np.random.choice([4,5,6])
         }
+
+        if config["prod"]==False:
+            hyperparams["epochs"] = 1
         return hyperparams
 
     best_model=None

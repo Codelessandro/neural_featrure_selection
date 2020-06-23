@@ -5,6 +5,7 @@ from scipy.stats import pearsonr
 from utils import *
 from timeit import default_timer as timer
 from matplotlib import pyplot as plt
+from BaseData import *
 
 
 def pearson(base_dataset,add_column,y):
@@ -12,6 +13,54 @@ def pearson(base_dataset,add_column,y):
 
 def constant(base_dataset,add_column,y):
     return 0.5
+
+
+
+def evaluation_wrapper(task, model):
+
+
+    if task == Task.multivariate_time_series:
+        BirthDeaths3 = BaseData('data/multivariate_time_series/_births_and_deaths.csv', ';', 3, 1, base_size=config["nr_base_columns"])
+        BirthDeaths3.load()
+
+
+        evaluations = evaluation(
+            BirthDeaths3.base_xy,
+            add_eval_columns,
+            WineData.base_dataset[:, 11],
+            model
+        )
+
+
+    if task==Task.regression:
+
+        WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
+        WineData.load()
+
+        if config["budget_join"]:
+            add_eval_columns = [
+                WineData.base_dataset[:, 0],
+                WineData.base_dataset[:, 1],
+                WineData.base_dataset[:, 2],
+                WineData.base_dataset[:, 3],
+                WineData.base_dataset[:, 11],
+            ]
+
+            for i in np.arange(config["nr_add_columns_budget"] - len(add_eval_columns)):
+                add_eval_columns.append(WineData.base_dataset[:, 0])
+        else:
+            add_eval_columns = [
+                WineData.base_dataset[:, 0]
+            ]
+
+        evaluations = evaluation(
+            WineData.base_xy,
+            add_eval_columns,
+            WineData.base_dataset[:, 11],
+            model
+        )
+
+    plot_performance([evaluations[1]], [evaluations[3]])
 
 
 def evaluation(base_dataset, add_columns, y, neural_feature_model):
@@ -43,15 +92,7 @@ def evaluation(base_dataset, add_columns, y, neural_feature_model):
     scores = np.mean(scores,axis=0)
     nfs_end = timer()
 
-    '''
-    print("For this dataset with this column we have the following scores:")
 
-    for e in evaluations:
-        method = list(e.keys())[0]
-        print("method:" + str(method) + str(e[method]))
-
-    print("Neural Feature Selection:" + str(score))
-    '''
 
     evaluations = list(map(lambda e: e['pearson'], evaluations))
     return  scores,  (nfs_end - nfs_start), evaluations, (p_end-p_start)
