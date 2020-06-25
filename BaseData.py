@@ -171,6 +171,7 @@ class BaseData():
                 _score = -(score-base_r2_score) #adding a_column does not help
 
             add_columns.append([self.dataset[:, add_column], _score])
+            self.add_columns = add_columns
         return batchify(base_x,  add_columns, base_y, config["budget_join"])
 
 #google = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)

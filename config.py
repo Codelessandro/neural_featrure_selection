@@ -20,7 +20,7 @@ config = {
     # if this number is biger than colums we can get from the dataset, bootstrapping is activated automatically #can also be set to 0
     "task": Task.regression,
     "prod" : False, #production True means that full dataset will be loaded
-
+    "nfs_output_threshold": 0.5, #between 0 and 1 - nfs scores that are above this value will be taken to augment datasert
     "multivariate_time_series": {
         "window_size": 10,
         "offset": 0,  # 0 is the next after the x batch

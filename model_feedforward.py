@@ -21,6 +21,8 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
 
         if config["prod"]==False:
             hyperparams["epochs"] = 1
+        hyperparams["epochs"] = 1
+
         return hyperparams
 
     best_model=None
