@@ -17,4 +17,7 @@ np.set_printoptions(suppress=True)
 
 xy, y_score = load_data(config["task"])
 model, i, modelhistory = best_feedforward_model(xy, y_score, True)
-_=evaluation_wrapper(config["task"], model, 'data/winequality-red.csv', True)
+
+WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
+WineData.load()
+_=evaluation_wrapper(config["task"], model, 'data/winequality-red.csv', True, WineData)

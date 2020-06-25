@@ -16,7 +16,7 @@ def constant(base_dataset,add_column,y):
 
 
 
-def evaluation_wrapper(task, model, _path, _print):
+def evaluation_wrapper(task, model, _path, _print, eval_dataset):
 
 
     if task == Task.multivariate_time_series:
@@ -27,36 +27,35 @@ def evaluation_wrapper(task, model, _path, _print):
         evaluations = evaluation(
             BirthDeaths3.base_xy,
             add_eval_columns,
-            WineData.base_dataset[:, 11],
+            eval_dataset.base_dataset[:, 11],
             model
         )
 
 
     if task==Task.regression:
 
-        WineData = BaseData(_path, ';', 11, 10, config["nr_base_columns"], rifs=True)
-        WineData.load()
+      
 
         if config["budget_join"]:
             add_eval_columns = [
-                WineData.base_dataset[:, 0],
-                WineData.base_dataset[:, 1],
-                WineData.base_dataset[:, 2],
-                WineData.base_dataset[:, 3],
-                WineData.base_dataset[:, 11],
+                eval_dataset.base_dataset[:, 0],
+                eval_dataset.base_dataset[:, 1],
+                eval_dataset.base_dataset[:, 2],
+                eval_dataset.base_dataset[:, 3],
+                eval_dataset.base_dataset[:, 11],
             ]
 
             for i in np.arange(config["nr_add_columns_budget"] - len(add_eval_columns)):
-                add_eval_columns.append(WineData.base_dataset[:, 0])
+                add_eval_columns.append(eval_dataset.base_dataset[:, 0])
         else:
             add_eval_columns = [
-                WineData.base_dataset[:, 0]
+                eval_dataset.base_dataset[:, 0]
             ]
 
         evaluations = evaluation(
-            WineData.base_xy,
+            eval_dataset.base_xy,
             add_eval_columns,
-            WineData.base_dataset[:, 11],
+            eval_dataset.base_dataset[:, 11],
             model
         )
 
@@ -64,23 +63,23 @@ def evaluation_wrapper(task, model, _path, _print):
 
 
     regr = linear_model.LinearRegression()
-    regr.fit(WineData.base_x,  WineData.base_y)
-    regression_score_base_data = regr.score(WineData.base_x,  WineData.base_y)
+    regr.fit(eval_dataset.base_x,  eval_dataset.base_y)
+    regression_score_base_data = regr.score(eval_dataset.base_x,  eval_dataset.base_y)
     indices=np.where(evaluations[0] > config["nfs_output_threshold"])
 
 
 
     regr = linear_model.LinearRegression()
 
-    add_columns= np.array(list(map( lambda c: c[0] , WineData.add_columns)))[indices[0],:]
+    add_columns= np.array(list(map( lambda c: c[0] , eval_dataset.add_columns)))[indices[0],:]
 
-    augmented_x=  np.transpose(np.concatenate( ( np.transpose(WineData.base_x,(1,0)), add_columns ) ,axis=0),(1,0))
-    regr.fit(augmented_x, WineData.base_y)
-    regression_score_augmented = regr.score(augmented_x, WineData.base_y)
+    augmented_x=  np.transpose(np.concatenate( ( np.transpose(eval_dataset.base_x,(1,0)), add_columns ) ,axis=0),(1,0))
+    regr.fit(augmented_x, eval_dataset.base_y)
+    regression_score_augmented = regr.score(augmented_x, eval_dataset.base_y)
             
     output= ""
     output+="Path: " + str(_path)
-    output+="\nBase DataSet size: " + str(WineData.base_x.shape)
+    output+="\nBase DataSet size: " + str(eval_dataset.base_x.shape)
     output+="\nScore for Base DataSet: " + str( regression_score_base_data)
 
     output+="\nColumns presented to NFS: " + str(config["nr_add_columns_budget"])
