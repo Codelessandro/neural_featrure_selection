@@ -22,21 +22,22 @@ def merge_data_sets(datasets):
 
 def load_data(task):
     if task == Task.regression:
-        WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
-        GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10,
-                              config["nr_base_columns"], rifs=True)
-        CampusData = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True)
-        FootballData = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True)
-        KingSalesData = BaseData('data/kc_house_data.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
-        AvocadoSalesData = BaseData('data/avocado.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
-        TeslaStocksData = BaseData('data/TSLA.csv', ',', 6, 10, config["nr_base_columns"], rifs=True)
-        WeatherHistoryData = BaseData('data/weatherHistory.csv', ',', 8, 10, config["nr_base_columns"], rifs=True)
-        VoiceData = BaseData('data/voice.csv', ',', 19, 10, config["nr_base_columns"], rifs=True)
+        WineData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True, date=0)
+        GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)
+        CampusData = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True, text_columns=[1, 3, 5, 6, 8, 9, 11, 13])
+        FootballData = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True, text_columns=[1, 2, 5, 6, 7, 8], date=0)
+        KingSalesData = BaseData('data/kc_house_data.csv', ',', 2, 10, config["nr_base_columns"], rifs=True, date=1)
+        AvocadoSalesData = BaseData('data/avocado.csv', ',', 2, 10, config["nr_base_columns"], rifs=True, text_columns=[11, 13], date=1)
+        Brazil_Rent = BaseData('data/houses_to_rent.csv', ',', 12, 10, config["nr_base_columns"], rifs=True, text_columns=[6, 7])
+        TeslaStocksData = BaseData('data/TSLA.csv', ',', 6, 10, config["nr_base_columns"], rifs=True, date=0)
+        WeatherHistoryData = BaseData('data/weatherHistory.csv', ',', 8, 10, config["nr_base_columns"], rifs=True, text_columns=[1,2, 11], date=0)
+        VoiceData = BaseData('data/voice.csv', ',', 19, 10, config["nr_base_columns"], rifs=True, text_columns=[20])
+        CountriesData = BaseData('data/countries_of_the_world.csv', ',', 14, 10, config["nr_base_columns"], rifs=True, text_columns=[0,1])
 
         if config["prod"]==True:
             xy, y_score = merge_data_sets(
-                [WineData, GoogleData, CampusData, FootballData, KingSalesData, AvocadoSalesData, TeslaStocksData,
-                 WeatherHistoryData, VoiceData])
+                [WineData, GoogleData, CampusData, FootballData, KingSalesData, AvocadoSalesData, Brazil_Rent, TeslaStocksData,
+                 WeatherHistoryData, VoiceData, CountriesData])
 
         if config["prod"]==False:
             xy, y_score = merge_data_sets([WineData, GoogleData])
