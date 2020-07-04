@@ -38,8 +38,11 @@ def load_data(task):
                 [WineData, GoogleData, CampusData, FootballData, KingSalesData, AvocadoSalesData, TeslaStocksData,
                  WeatherHistoryData, VoiceData])
 
+            config["current_dataset_names"] = ['WineData', 'GoogleData', 'CampusData', 'FootballData', 'KingSalesData', 'AvocadoSalesData', 'TeslaStocksData', 'WeatherHistoryData', 'VoiceData']
+
         if config["prod"]==False:
             xy, y_score = merge_data_sets([WineData, GoogleData])
+            config["current_dataset_names"] = ['WineData', 'GoogleData']
 
     if task == Task.multivariate_time_series:
         BirthDeaths3 = BaseData('data/multivariate_time_series/_births_and_deaths.csv', ';', 3, 1, base_size=config["nr_base_columns"])
@@ -50,5 +53,6 @@ def load_data(task):
 
     if task == Task.classification:
         pass
+
 
     return xy, y_score
