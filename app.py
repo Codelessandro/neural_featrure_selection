@@ -16,6 +16,8 @@ np.set_printoptions(suppress=True)
 
 
 xy, y_score = load_data(config["task"])
+y_score = normalize(y_score)
+
 model, i, modelhistory = best_feedforward_model(xy, y_score, True)
 
 WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
