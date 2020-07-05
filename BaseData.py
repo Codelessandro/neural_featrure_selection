@@ -1,19 +1,18 @@
 import pdb
 import pandas as pd
-from numpy import genfromtxt
 from sklearn import datasets, linear_model
 import numpy as np
 from utils import *
-from numpy.random import default_rng
 from sklearn.utils import resample
-
+from sklearn import preprocessing
+from sklearn.decomposition import PCA
 
 np.random.seed(0)
 
 from config import *
 
 class BaseData():
-    def __init__(self, dataset_path, delimiter, target, combine, base_size=5, rifs=False):
+    def __init__(self, dataset_path, delimiter, target, combine, base_size=5, rifs=False, text_columns=None, date=None):
 
         self.augmented_nr_rows = config["dataset_rows"]
         self.dataset_path = dataset_path
@@ -22,7 +21,8 @@ class BaseData():
         self.combine = combine
         self.base_size = base_size
         self.rifs = rifs
-
+        self.text_columns = text_columns
+        self.date = date
 
     def score(self,x,y):
         if config["task"]==Task.regression:
@@ -97,8 +97,30 @@ class BaseData():
         return regr.score(x,y)
 
     def load(self):
-        self.dataset = genfromtxt(self.dataset_path, delimiter=self.delimiter, encoding="utf8", invalid_raise = False)[1:]
-        self.dataset = np.nan_to_num(self.dataset)
+        self.dataset = pd.read_csv(self.dataset_path, delimiter=self.delimiter, parse_dates=True)
+        #self.dataset.fillna(0, inplace=True)
+        target_column = self.dataset.columns[self.target]
+        if self.date != None:
+            self.dataset.iloc[:, self.date] = pd.to_datetime(self.dataset.iloc[:, self.date], utc=True).dt.strftime("%m/%d/%Y")
+        #if self.date != None: #enable this condition if the scaler is terminated from the approach
+        #    self.dataset.iloc[:, self.date] = (self.dataset.iloc[:, self.date] - self.dataset.iloc[:, self.date].min()) / (self.dataset.iloc[:, self.date].max() - self.dataset.iloc[:, self.date].min())
+        #pdb.set_trace()
+        if self.text_columns != None:
+            pca = PCA(.95)
+            dummy = pd.get_dummies(self.dataset.iloc[:, self.text_columns])
+            self.dataset.drop(self.dataset.iloc[:, self.text_columns], axis=1, inplace=True)
+            pca.fit(dummy)
+            pca_df = pd.DataFrame(pca.transform(dummy))
+            self.dataset = pd.concat([self.dataset, pca_df], axis=1)
+        self.dataset = self.dataset[self.dataset.applymap(np.isreal) == True]
+        self.dataset.fillna(0, inplace=True)
+        self.dataset = self.dataset.apply(pd.to_numeric)
+        self.target = self.dataset.columns.get_loc(target_column)
+        x = self.dataset.values  # returns a numpy array
+        standard_scaler = preprocessing.StandardScaler()
+        x_scaled = standard_scaler.fit_transform(x)
+        self.dataset = pd.DataFrame(x_scaled)
+        self.dataset = self.dataset.to_numpy()
         self.base_dataset = self.dataset
         self.combination(self.dataset, self.target, self.combine)
 
@@ -174,49 +196,54 @@ class BaseData():
             self.add_columns = add_columns
         return batchify(base_x,  add_columns, base_y, config["budget_join"])
 
-#google = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)
+#google = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True, date=0)
 #google.load()
-#print(google.xy.shape)
+#print(google.xy)
 
-#campus_placement = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True)
+#WineData = BaseData('data/winequality-red.csv', ';', 11, 10, config["nr_base_columns"], rifs=True)
+#WineData.load()
+#print(WineData.xy)
+
+#campus_placement = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True, text_columns=[1, 3, 5, 6, 8, 9, 11, 13])
 #campus_placement.load()
 #print(campus_placement.xy)
 
-#added here decoding parameter to getfromtxt
-#football_results = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True)
+#takes ages to execute, but works
+#football_results = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True, text_columns=[1, 2, 5, 6, 7, 8], date=0)
 #football_results.load()
 #print(football_results.xy)
 
-#new method to replace blank cells has to be added
-#games_sales = BaseData('data/Video_Games_Sales_as_at_22_Dec_2016.csv', ',', 15, 10, config["nr_base_columns"], rifs=True)
+#MemoryError: Unable to allocate 5.95 GiB for an array with shape (275551, 20, 145) and data type float64
+#only merge if you have enough memory to allocate
+#games_sales = BaseData('data/Video_Games_Sales_as_at_22_Dec_2016.csv', ',', 9, 10, config["nr_base_columns"], rifs=True, text_columns=[0,1,3,4,14,15])
 #games_sales.load()
 #print(games_sales.xy)
 
-#king_sales = BaseData('data/kc_house_data.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
+#minmaxscaler implemented
+#king_sales = BaseData('data/kc_house_data.csv', ',', 2, 10, config["nr_base_columns"], rifs=True, date=1)
 #king_sales.load()
 #print(king_sales.xy)
 
-#avocado_sales = BaseData('data/avocado.csv', ',', 2, 10, config["nr_base_columns"], rifs=True)
+#avocado_sales = BaseData('data/avocado.csv', ',', 2, 10, config["nr_base_columns"], rifs=True, text_columns=[11, 13], date=1)
 #avocado_sales.load()
 #print(avocado_sales.xy)
 
-#too many text columns
-#brazil_rent = BaseData('data/houses_to_rent_brazil.csv', ',', 12, 10, config["nr_base_columns"], rifs=True)
+#brazil_rent = BaseData('data/houses_to_rent.csv', ',', 12, 10, config["nr_base_columns"], rifs=True, text_columns=[6, 7])
 #brazil_rent.load()
 #print(brazil_rent.xy)
 
-#tesla_stocks = BaseData('data/TSLA.csv', ',', 6, 10, config["nr_base_columns"], rifs=True)
+#tesla_stocks = BaseData('data/TSLA.csv', ',', 6, 10, config["nr_base_columns"], rifs=True, date=0)
 #tesla_stocks.load()
 #print(tesla_stocks.xy)
 
-#weatherHistory = BaseData('data/weatherHistory.csv', ',', 8, 10, config["nr_base_columns"], rifs=True)
+#weatherHistory = BaseData('data/weatherHistory.csv', ',', 8, 10, config["nr_base_columns"], rifs=True, text_columns=[1,2, 11], date=0)
 #weatherHistory.load()
 #print(weatherHistory.xy)
 
-#voice = BaseData('data/voice.csv', ',', 19, 10, config["nr_base_columns"], rifs=True)
+#voice = BaseData('data/voice.csv', ',', 19, 10, config["nr_base_columns"], rifs=True, text_columns=[20])
 #voice.load()
 #print(voice.xy)
 
-#countries_of_the_world = BaseData('data/countries_of_the_world.csv', ',', 14, 10, config["nr_base_columns"], rifs=True)
+#countries_of_the_world = BaseData('data/countries_of_the_world.csv', ',', 14, 10, config["nr_base_columns"], rifs=True, text_columns=[0,1])
 #countries_of_the_world.load()
 #print(countries_of_the_world.xy)
