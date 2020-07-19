@@ -90,5 +90,45 @@ def _batchify(base_x,  add_columns, base_y, budget_join):
 
 
 def normalize(data):
-    normalized = (data - np.min(data)) / (np.max(data) - np.min(data))
-    return np.tanh(normalized*100)
+    import math
+
+
+    def calc_count_for_bin(values):
+        counts = []
+
+        for bin in np.unique(values)[1:]:
+            count = len(np.where(values == bin)[0])
+            counts.append(count)
+
+        sum = np.sum(counts)
+        for index, el in enumerate(counts):
+            counts[index] = el / sum
+
+        return counts
+
+
+
+    def check_entropy(values): #values is [0.1, 0.002, 0.33, ..]
+        from scipy.stats import entropy
+
+        values = values.reshape(-1)
+        bins =  np.arange(0,1,0.1)
+        values = list(map(lambda value: math.ceil(value*10)/10, values))
+
+
+        counts = calc_count_for_bin(values)
+
+        return entropy(counts)
+
+    _normalized = (data - np.min(data)) / (np.max(data) - np.min(data))
+    highest_entropy=0
+    best_scale=None
+    for scale in np.arange(0,500,1):
+
+        entropy = check_entropy( np.tanh(_normalized*scale))
+        if entropy > highest_entropy:
+            highest_entropy = entropy
+            best_scale = scale
+
+
+    return np.tanh(_normalized*best_scale), best_scale

@@ -13,7 +13,7 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
     def get_random_hyperparams():
         hyperparams = {
             "learning_rate" : np.random.choice([0.1,0.01,0.001,0.0001]),
-            "epochs" : np.random.choice([5,10,20,30,50]),
+            "epochs" : np.random.choice([5,10,20,30,40,50]),
             "batch_size" : np.random.choice([2,4,6,8,16,32]),
             "layers" : np.random.choice([2,3,4]),
             "nodes_on_layer": np.random.choice([4,5,6])
@@ -21,7 +21,6 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
 
         if config["prod"]==False:
             hyperparams["epochs"] = 1
-        hyperparams["epochs"] = 1
 
         return hyperparams
 

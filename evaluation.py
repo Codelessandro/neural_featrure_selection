@@ -34,10 +34,18 @@ def evaluation_wrapper(task, model, _path, _print, eval_dataset):
 
     if task==Task.regression:
 
-      
+        def get_wine_column():
+            content = open('data/wineexport.csv').read().split("\n")
+            values = list(map(lambda line: line.split(";")[1], content))
+            return np.array(values).astype(float)
+
+        wc=get_wine_column()
+        import pdb; pdb.set_trace()
 
         if config["budget_join"]:
+
             add_eval_columns = [
+
                 eval_dataset.base_dataset[:, 0],
                 eval_dataset.base_dataset[:, 1],
                 eval_dataset.base_dataset[:, 2],
@@ -46,18 +54,24 @@ def evaluation_wrapper(task, model, _path, _print, eval_dataset):
             ]
 
             for i in np.arange(config["nr_add_columns_budget"] - len(add_eval_columns)):
-                add_eval_columns.append(eval_dataset.base_dataset[:, 0])
+                add_eval_columns.append(  np.random.normal(0,1,eval_dataset.base_dataset[:, 0].shape)  )
+                #add_eval_columns.append(np.ones(eval_dataset.base_dataset[:, 0].shape))
         else:
             add_eval_columns = [
                 eval_dataset.base_dataset[:, 0]
             ]
+        import pdb; pdb.set_trace()
 
         evaluations = evaluation(
-            eval_dataset.base_xy,
-            add_eval_columns,
-            eval_dataset.base_dataset[:, 11],
-            model
+            eval_dataset.base_xy, #5
+            add_eval_columns,   #1200
+            eval_dataset.base_dataset[:, 11],  #
+            model #model
         )
+
+        import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
 
     #plot_performance([evaluations[1]], [evaluations[3]])
 

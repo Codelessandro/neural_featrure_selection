@@ -22,7 +22,7 @@ def merge_data_sets(datasets):
 
 def load_data(task):
     if task == Task.regression:
-        WineData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True, date=0)
+        WineData = BaseData('data/winequality-red.csv', ';', 7, 10, config["nr_base_columns"], rifs=True)
         GoogleData = BaseData('data/google-safe-browsing-transparency-report-data.csv', ',', 10, 10, config["nr_base_columns"], rifs=True)
         CampusData = BaseData('data/placement_data_full_class.csv', ',', 14, 10, config["nr_base_columns"], rifs=True, text_columns=[1, 3, 5, 6, 8, 9, 11, 13])
         FootballData = BaseData('data/results_football.csv', ',', 3, 10, config["nr_base_columns"], rifs=True, text_columns=[1, 2, 5, 6, 7, 8], date=0)
@@ -34,16 +34,16 @@ def load_data(task):
         VoiceData = BaseData('data/voice.csv', ',', 19, 10, config["nr_base_columns"], rifs=True, text_columns=[20])
         CountriesData = BaseData('data/countries_of_the_world.csv', ',', 14, 10, config["nr_base_columns"], rifs=True, text_columns=[0,1])
 
-        if config["prod"]==True:
-            xy, y_score = merge_data_sets(
-                [WineData, GoogleData, CampusData, FootballData, KingSalesData, AvocadoSalesData, Brazil_Rent, TeslaStocksData,
-                 WeatherHistoryData, VoiceData, CountriesData])
-
-            config["current_dataset_names"] = ['WineData', 'GoogleData', 'CampusData', 'FootballData', 'KingSalesData', 'AvocadoSalesData', 'TeslaStocksData', 'WeatherHistoryData', 'VoiceData']
+        train_datasets = [WineData, GoogleData, CampusData, FootballData, KingSalesData, AvocadoSalesData, Brazil_Rent,
+                          TeslaStocksData, WeatherHistoryData, VoiceData, CountriesData]
 
         if config["prod"]==False:
-            xy, y_score = merge_data_sets([WineData, GoogleData])
-            config["current_dataset_names"] = ['WineData', 'GoogleData']
+            train_datasets = train_datasets[0:2]
+
+        xy, y_score = merge_data_sets(train_datasets)
+        config["current_dataset_names"] = list(map(lambda d: d.dataset_path, train_datasets))
+
+
 
     if task == Task.multivariate_time_series:
         BirthDeaths3 = BaseData('data/multivariate_time_series/_births_and_deaths.csv', ';', 3, 1, base_size=config["nr_base_columns"])

@@ -116,9 +116,13 @@ class BaseData():
         self.dataset.fillna(0, inplace=True)
         self.dataset = self.dataset.apply(pd.to_numeric)
         self.target = self.dataset.columns.get_loc(target_column)
+
+
         x = self.dataset.values  # returns a numpy array
-        standard_scaler = preprocessing.StandardScaler()
-        x_scaled = standard_scaler.fit_transform(x)
+        #standard_scaler = preprocessing.StandardScaler()
+        #x_scaled = standard_scaler.fit_transform(x)
+        x_scaled = x
+
         self.dataset = pd.DataFrame(x_scaled)
         self.dataset = self.dataset.to_numpy()
         self.base_dataset = self.dataset
@@ -192,6 +196,8 @@ class BaseData():
             else:
                 _score = -(score-base_r2_score) #adding a_column does not help
 
+            if _score>1:
+                raise Exception('>1')
             add_columns.append([self.dataset[:, add_column], _score])
             self.add_columns = add_columns
         return batchify(base_x,  add_columns, base_y, config["budget_join"])
