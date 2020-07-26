@@ -16,7 +16,7 @@ def constant(base_dataset,add_column,y):
 
 
 
-def evaluation_wrapper(task, model, _path, _print, eval_dataset):
+def evaluation_wrapper(task, model, _path, _print, eval_dataset, columns, target):
 
 
     if task == Task.multivariate_time_series:
@@ -32,26 +32,22 @@ def evaluation_wrapper(task, model, _path, _print, eval_dataset):
         )
 
 
-    if task==Task.regression:
+    if task == Task.regression:
 
+        '''
         def get_wine_column():
-            content = open('data/wineexport.csv').read().split("\n")
+            content = open('data/winequality-red.csv').read().split("\n")
             values = list(map(lambda line: line.split(";")[1], content))
             return np.array(values).astype(float)
 
         wc=get_wine_column()
-        import pdb; pdb.set_trace()
+        '''
 
         if config["budget_join"]:
+            add_eval_columns = []
+            for i in columns:
+                add_eval_columns.append(eval_dataset.base_dataset[:, i])
 
-            add_eval_columns = [
-
-                eval_dataset.base_dataset[:, 0],
-                eval_dataset.base_dataset[:, 1],
-                eval_dataset.base_dataset[:, 2],
-                eval_dataset.base_dataset[:, 3],
-                eval_dataset.base_dataset[:, 11],
-            ]
 
             for i in np.arange(config["nr_add_columns_budget"] - len(add_eval_columns)):
                 add_eval_columns.append(  np.random.normal(0,1,eval_dataset.base_dataset[:, 0].shape)  )
@@ -60,18 +56,13 @@ def evaluation_wrapper(task, model, _path, _print, eval_dataset):
             add_eval_columns = [
                 eval_dataset.base_dataset[:, 0]
             ]
-        import pdb; pdb.set_trace()
 
         evaluations = evaluation(
             eval_dataset.base_xy, #5
             add_eval_columns,   #1200
-            eval_dataset.base_dataset[:, 11],  #
+            eval_dataset.base_dataset[:, target],  #
             model #model
         )
-
-        import pdb; pdb.set_trace()
-        import pdb; pdb.set_trace()
-        import pdb; pdb.set_trace()
 
     #plot_performance([evaluations[1]], [evaluations[3]])
 
