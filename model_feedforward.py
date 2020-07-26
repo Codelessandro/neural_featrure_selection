@@ -1,6 +1,6 @@
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Flatten
-
+from tensorflow import keras
 import numpy as np
 from config import *
 
@@ -50,7 +50,7 @@ def best_feedforward_model(x,y,plot_batch_labels=False):
             model.add(Dense(1))
 
         model.add(Activation('sigmoid'))
-        model.compile(optimizer='rmsprop', learning_rate=hp["learning_rate"], loss='mse')
+        model.compile(optimizer=keras.optimizers.RMSprop(hp["learning_rate"]), loss='mse')
         _=model.fit(x, y, epochs=hp["epochs"], batch_size=hp["batch_size"], validation_split=0.2)
 
         mean_val_loss=np.mean(_.history["val_loss"][-10:])
